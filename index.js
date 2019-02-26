@@ -1,14 +1,31 @@
 /*
-Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6
+Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8
+
+POSTMAN
+POST Body:
+{
+    "name": "B",
+    "number": "12",
+    "id": 41
+}
 */
 const express = require('express')
 const app = express()
-const mod = require('./mytimemodule');
+const mod = require('./mytimemodule')
+const PORT = process.env.PORT || 3001
+
+const nofavicon = require("express-no-favicons")
+app.use(nofavicon())
 
 const bodyParser = require('body-parser')
-
 app.use(bodyParser.json())
 
+const morgan = require('morgan')
+morgan.token('message', (req, res)=> {
+	return JSON.stringify(req.body)
+	}
+)
+app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))
 
 let persons =  [
     {
@@ -33,10 +50,13 @@ let persons =  [
 	}
 ]
 
-app.get('/info', (req, res) => {
-		const sum = persons.length
+app.get('/', (req, res) => {
+  res.send('<h1>Hello World!</h1>')
+})
+
+app.get('/info', (req, res, next) => {
+  const sum = persons.length
   res.send('<p>puhelinluettelossa ' + sum + ' henkilön tiedot </p>' + mod.myDateTime())
-  
 })
 
 app.get('/api/persons', (req, res) => {
@@ -47,7 +67,7 @@ app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   console.log(id)
   const person = persons.find(person => person.id === id )
-   if ( person ) {
+  if ( person ) {
     response.json(person)
   } else {
     response.status(404).end()
@@ -76,7 +96,7 @@ app.post('/api/persons', (request, response) => {
   if (body.name === "" || body.number === "") {
     return response.status(400).json({error: 'content missing'})
   }
-  
+
   const duplicate=persons.find(n => n.name.toLowerCase() === body.name.toLowerCase())
   
   if (duplicate) {
@@ -93,7 +113,7 @@ app.post('/api/persons', (request, response) => {
 
   response.json(person)
 })
-const PORT = 3001
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
