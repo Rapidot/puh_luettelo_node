@@ -1,5 +1,5 @@
 /*
-Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8
+Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8 + 3.9, 3.10
 
 POSTMAN
 POST Body:
@@ -12,7 +12,7 @@ POST Body:
 const express = require('express')
 const app = express()
 const mod = require('./mytimemodule')
-const PORT = process.env.PORT || 3001
+
 
 const nofavicon = require("express-no-favicons")
 app.use(nofavicon())
@@ -26,6 +26,9 @@ morgan.token('message', (req, res)=> {
 	}
 )
 app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))
+
+const cors = require('cors')
+app.use(cors())
 
 let persons =  [
     {
@@ -76,9 +79,9 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
+  person = persons.filter(person => person.id !== id)
 if ( person ) {
-    response.status(204).end()
+    response.json(person)
   } else {
     response.status(404).end()
   }
@@ -114,6 +117,7 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
