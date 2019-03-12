@@ -1,5 +1,5 @@
 /*
-Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8 + 3.9, 3.10
+Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8 + 3.9, 3.10 + 3.11
 
 POSTMAN
 POST Body:
@@ -11,8 +11,9 @@ POST Body:
 */
 const express = require('express')
 const app = express()
-const mod = require('./mytimemodule')
+app.use(express.static('build'))//Etsii juuresta Frontendin upotetusta BUILD hakemistosta index.js tiedoston
 
+const mod = require('./mytimemodule')
 
 const nofavicon = require("express-no-favicons")
 app.use(nofavicon())
@@ -20,14 +21,14 @@ app.use(nofavicon())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
-const morgan = require('morgan')
+const morgan = require('morgan') //Log
 morgan.token('message', (req, res)=> {
 	return JSON.stringify(req.body)
 	}
 )
 app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))
 
-const cors = require('cors')
+const cors = require('cors') //Cross-origin resource sharing
 app.use(cors())
 
 let persons =  [
@@ -66,7 +67,7 @@ app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (req, res) => {
   const id = Number(request.params.id)
   console.log(id)
   const person = persons.find(person => person.id === id )
@@ -77,13 +78,13 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  person = persons.filter(person => person.id !== id)
-if ( person ) {
-    response.json(person)
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  persons = persons.filter(person => person.id !== id)
+if ( persons ) {
+    res.json(persons)
   } else {
-    response.status(404).end()
+    res.status(404).end()
   }
 })
 
