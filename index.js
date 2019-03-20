@@ -14,18 +14,17 @@ POST Body:
 */
 require('dotenv').config()
 
-const mod = require('./mytimemodule')
-const Person = require('./models/person')
-
 const express = require('express')
 const app = express()
 app.use(express.static('build'))//Etsii juuresta Frontendin upotetusta BUILD hakemistosta index.js tiedoston
 
-const nofavicon = require("express-no-favicons")
-app.use(nofavicon())
+/* const nofavicon = require("express-no-favicons")
+app.use(nofavicon()) */
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
+
+const Person = require('./models/person')
 
 const logger = (request, response, next) => {
   console.log('Method:', request.method)
