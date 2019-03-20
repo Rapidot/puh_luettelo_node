@@ -1,6 +1,9 @@
 {
   "name": "puh_luettelo_node",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.13.0"
+  }
   "description": "Puhelin luettelo Nodella",
   "main": "index.js",
   "scripts": {
