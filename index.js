@@ -27,17 +27,26 @@ app.use(nofavicon())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
-const morgan = require('morgan') //Log
+const logger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
+app.use(logger)
+
+/* const morgan = require('morgan') //Log
 morgan.token('message', (req, res)=> {
 	return JSON.stringify(req.body)
 	}
 )
-app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))
+app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))*/
+ 
+/* const cors = require('cors') //Cross-origin resource sharing
+app.use(cors()) */
 
-const cors = require('cors') //Cross-origin resource sharing
-app.use(cors())
-
-let persons =  [
+/* let persons =  [
     {
       "name": "Arto Hellas",
       "number": "040-123456",
@@ -58,7 +67,7 @@ let persons =  [
       "number": "040-123456",
       "id": 4
 	}
-]
+] */
 
 /* app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
