@@ -46,7 +46,7 @@ app.use(morgan(':method :url :message :status :res[content-length] - :response-t
 /* const cors = require('cors') //Cross-origin resource sharing
 app.use(cors()) */
 
-/* let persons =  [
+ let persons =  [
     {
       "name": "Arto Hellas",
       "number": "040-123456",
@@ -67,7 +67,7 @@ app.use(cors()) */
       "number": "040-123456",
       "id": 4
 	}
-] */
+] 
 
 /* app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
@@ -134,11 +134,11 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({error: 'name already in use'})
   }
   
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number|| 0000,
     //id: generateId() //Mongon hoidossa
-  }
+  })
 
   //persons = persons.concat(person) //Lisätään Mongoon eikä listaan
   
