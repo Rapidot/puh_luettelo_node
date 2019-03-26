@@ -34,8 +34,7 @@ morgan.token('message', (req, res)=> {
 	}
 )
 app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms')) */
- 
- 
+
 const cors = require('cors') //Cross-origin resource sharing
 app.use(cors())
 
@@ -48,13 +47,13 @@ const logger = (request, response, next) => {
 }
 app.use(logger)
 
-/* app.get('/info', (request, response, next) => {
-	Person.countDocuments({}, (err, count) => {
-		if (err) { return handleError(err) } //handle possible errors
+app.get('/info', (request, response, next) => {
+	Person.countDocuments({}, (error, count) => {
 		console.log('puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
 		response.json('Puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
 	})
-}) */
+	.catch(error => next(error))
+})
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
