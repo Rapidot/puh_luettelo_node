@@ -48,14 +48,13 @@ const logger = (request, response, next) => {
 }
 app.use(logger)
 
-app.get('/info', (request, response, next) => {
+/* app.get('/info', (request, response, next) => {
 	Person.countDocuments({}, (err, count) => {
 		if (err) { return handleError(err) } //handle possible errors
 		console.log('puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
 		response.json('Puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
 	})
-  //request.send('<p>puhelinluettelossa ' + sum + ' henkilön tiedot </p>' + mod.myDateTime())
-})
+}) */
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
@@ -127,11 +126,9 @@ app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
-
   if (error.name === 'CastError' && error.kind == 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   } 
-
   next(error)
 }
 
