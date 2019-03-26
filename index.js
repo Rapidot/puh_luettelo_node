@@ -35,6 +35,7 @@ morgan.token('message', (req, res)=> {
 )
 app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms')) */
  
+ 
 const cors = require('cors') //Cross-origin resource sharing
 app.use(cors())
 
@@ -60,6 +61,7 @@ app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons.map(person => person.toJSON()))
   })
+  .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
