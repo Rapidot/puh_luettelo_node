@@ -2,7 +2,8 @@
 Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8
  + 3.9, 3.10
  + 3.11
- + 3.13, 3,14
+ + 3.13, 3.14
+ + 3.15, 3.16, 3.17 ja 3.18
 
 POSTMAN
 POST Body:
@@ -12,8 +13,8 @@ POST Body:
     "id": 41
 }
 */
-require('dotenv').config()
-
+require('dotenv').config() //.env ympäristömuuttuja
+const mod = require('./mytimemodule')
 
 const express = require('express')
 const app = express()
@@ -27,6 +28,16 @@ app.use(bodyParser.json())
 
 const Person = require('./models/person')
 
+/* const morgan = require('morgan') //Log
+morgan.token('message', (req, res)=> {
+	return JSON.stringify(req.body)
+	}
+)
+app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms')) */
+ 
+const cors = require('cors') //Cross-origin resource sharing
+app.use(cors())
+
 const logger = (request, response, next) => {
   console.log('Method:', request.method)
   console.log('Path:  ', request.path)
@@ -36,102 +47,46 @@ const logger = (request, response, next) => {
 }
 app.use(logger)
 
-/* const morgan = require('morgan') //Log
-morgan.token('message', (req, res)=> {
-	return JSON.stringify(req.body)
-	}
-)
-app.use(morgan(':method :url :message :status :res[content-length] - :response-time ms'))*/
- 
-/* const cors = require('cors') //Cross-origin resource sharing
-app.use(cors()) */
-
- let persons =  [
-    {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
-      "name": "Martti Tienari",
-      "number": "040-123456",
-      "id": 2
-    },
-    {
-      "name": "Arto Järvinen",
-      "number": "040-123456",
-      "id": 3
-    },
-    {
-      "name": "Lea Kutvonen",
-      "number": "040-123456",
-      "id": 4
-	}
-] 
-
-/* app.get('/', (req, res) => {
-  res.send('<h1>Hello World!</h1>')
-}) */
-
-app.get('/info', (req, res, next) => {
-  const sum = persons.length
-  res.send('<p>puhelinluettelossa ' + sum + ' henkilön tiedot </p>' + mod.myDateTime())
+app.get('/info', (request, response, next) => {
+	Person.countDocuments({}, (err, count) => {
+		if (err) { return handleError(err) } //handle possible errors
+		console.log('puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
+		response.json('Puhelinluettelossa ' + count + ' henkilön tiedot ' + mod.myDateTime())
+	})
+  //request.send('<p>puhelinluettelossa ' + sum + ' henkilön tiedot </p>' + mod.myDateTime())
 })
-
-/* app.get('/api/persons', (req, res) => {
-  res.json(persons)
-}) */
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
-    response.json(persons.map(person => person.toJSON()))
-  });
-});
-
-/* app.get('/api/persons/:id', (req, res) => {
-  const id = Number(request.params.id)
-  console.log(id)
-  const person = persons.find(person => person.id === id )
-  if ( person ) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
-}) */
-app.get('/api/persons/:id', (request, response) => {
-	Person.findById(request.params.id).then(person => {
-    response.json(person.toJSON())
+    response.json(person+s.map(person => person.toJSON()))
   })
 })
 
-
-app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter(person => person.id !== id)
-if ( persons ) {
-    res.json(persons)
-  } else {
-    res.status(404).end()
-  }
+app.get('/api/persons/:id', (request, response, next) => {
+	Person.findById(request.params.id)
+		.then(person => {
+			if (person){
+				response.json(person.toJSON())
+			} else {
+				response.status(404).end()
+			}
+		})
+		.catch(error => next(error))
 })
 
-/* const generateId = () => {
-  //const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
-  const maxId = Math.floor(Math.random() * 100) + 1
-  return maxId
-} */
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (body.name === "" || body.number === "") {
+  if (body.name === "") {
     return response.status(400).json({error: 'content missing'})
-  }
-
-  const duplicate=persons.find(n => n.name.toLowerCase() === body.name.toLowerCase())
-  
-  if (duplicate) {
-    return response.status(400).json({error: 'name already in use'})
   }
   
   const person = new Person({
@@ -140,14 +95,45 @@ app.post('/api/persons', (request, response) => {
     //id: generateId() //Mongon hoidossa
   })
 
-  //persons = persons.concat(person) //Lisätään Mongoon eikä listaan
-  
   person.save().then(savedPerson => {
     response.json(savedPerson.toJSON())
   })
-  
-  response.json(person)
+  //response.json(person)
+  .catch(error => next(error))
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+  
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson.toJSON())
+    })
+    .catch(error => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
