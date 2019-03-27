@@ -4,6 +4,8 @@ Harjoitus 3.1, 3.2, 3.3, 3.4, 3.5 ja 3.6 + 3.7, 3.8
  + 3.11
  + 3.13, 3.14
  + 3.15, 3.16, 3.17 ja 3.18
+ + 3.19, 3.20, 3.21
+ 
 
 POSTMAN
 POST Body:
@@ -13,7 +15,10 @@ POST Body:
     "id": 41
 }
 */
-require('dotenv').config() //.env ympäristömuuttuja
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()//.env ympäristömuuttuja vain dev käytössä
+}
 const mod = require('./mytimemodule')
 
 const express = require('express')
@@ -82,20 +87,17 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  if (body.name === "") {
-    return response.status(400).json({error: 'content missing'})
-  }
-  
   const person = new Person({
     name: body.name,
     number: body.number|| 0000,
     //id: generateId() //Mongon hoidossa
   })
 
-  person.save().then(savedPerson => {
+  person.save()
+	.then(savedPerson => {
     response.json(savedPerson.toJSON())
   })
   //response.json(person)
@@ -124,11 +126,13 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } 
-  next(error)
+	console.error(error.message)
+	if (error.name === 'CastError' && error.kind == 'ObjectId') {
+		return response.status(400).send({ error: 'malformatted id' })
+	  }  else if (error.name === 'ValidationError') {
+		return response.status(400).json({ error: error.message })
+	}
+	next(error)
 }
 
 app.use(errorHandler)
