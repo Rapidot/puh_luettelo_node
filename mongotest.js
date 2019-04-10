@@ -32,8 +32,8 @@ personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     //returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
-	//delete returnedObject.number
-	delete returnedObject.__v
+    //delete returnedObject.number
+    delete returnedObject.__v
   }
 })
 
@@ -46,13 +46,13 @@ const person = new Person({
 
 if ( pName || pNumber ) {
   person.save().then(response => {
-    console.log(`lisätty ${response}`);
-    mongoose.connection.close();
+    console.log(`lisätty ${response}`)
+    mongoose.connection.close()
   })
 }else{
   console.log('Puhelinluettelo: ')
   Person.find({}).then(result => {
-    result.forEach(person => {		
+    result.forEach(person => {
       console.log(person.toJSON())
     })
     mongoose.connection.close()
